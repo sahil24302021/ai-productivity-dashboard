@@ -2,18 +2,18 @@
 import prisma from "../prisma";
 import { Prisma } from "@prisma/client";
 
-type ApiStatus = "todo" | "in-progress" | "completed";
+type ApiStatus = "todo" | "in_progress" | "completed";
 type DbStatus = "todo" | "in_progress" | "done";
-const apiToDb = (s: ApiStatus): DbStatus => (s === "in-progress" ? "in_progress" : s === "completed" ? "done" : "todo");
+const apiToDb = (s: ApiStatus): DbStatus => (s === "in_progress" ? "in_progress" : s === "completed" ? "done" : "todo");
 
 /**
  * Helper: renumber tasks for a status into sequential positions starting at 1.
  * Accepts an array of Task objects (must include id) and updates position sequentially.
  */
-async function renumberTasksForStatus(userId: string, status: ApiStatus, orderedTaskIds: string[]): Promise<any> {
+async function renumberTasksForStatus(userId: string, status: ApiStatus, orderedTaskIds: string[]): Promise<Prisma.PrismaPromise<any>[]> {
   const dbStatus = apiToDb(status);
   // Build the bulk operations using a transaction
-  const updates = orderedTaskIds.map((taskId, index) =>
+  const updates: Prisma.PrismaPromise<any>[] = orderedTaskIds.map((taskId: string, index: number) =>
     prisma.task.update({
       where: { id: taskId },
       data: { position: index + 1, status: dbStatus as any },
@@ -40,13 +40,13 @@ export async function reorderTasks(userId: string, status: ApiStatus, taskIds: s
   }
 
   // ownership check
-  const notOwned = tasks.filter((t: { id: string; userId: string; status: string }) => t.userId !== userId);
+  const notOwned = tasks.filter((t: { id: string; userId: string; status: string }): boolean => t.userId !== userId);
   if (notOwned.length > 0) {
     throw new Error("Unauthorized: you don't own all tasks.");
   }
 
   // recommended to check that all tasks belong to the same status (or allow moving status via move endpoint)
-  const wrongStatus = tasks.filter((t: { id: string; userId: string; status: string }) => t.status !== apiToDb(normalizedStatus));
+  const wrongStatus = tasks.filter((t: { id: string; userId: string; status: string }): boolean => t.status !== apiToDb(normalizedStatus));
   if (wrongStatus.length > 0) {
     throw new Error("All tasks must belong to the provided status/column when reordering.");
   }
@@ -90,10 +90,10 @@ export async function moveTask(userId: string, taskId: string, toStatus: ApiStat
   });
 
   // Build new ordered list of IDs for destination
-  const destIds = destTasks.map((t: { id: string }) => t.id);
+  const destIds: string[] = destTasks.map((t: { id: string }): string => t.id);
 
   // Remove the taskId if it already exists in dest (it might when moving within same column)
-  const filtered: string[] = destIds.filter((id: string) => id !== taskId);
+  const filtered: string[] = destIds.filter((id: string): boolean => id !== taskId);
 
   // compute insertion index (0-based)
   let insertIndex = filtered.length; // default append
@@ -118,14 +118,16 @@ export async function moveTask(userId: string, taskId: string, toStatus: ApiStat
   const tx: Prisma.PrismaPromise<any>[] = [];
 
     // update dest
-    filtered.forEach((id: string, idx: number) =>
-      tx.push(prisma.task.update({ where: { id }, data: { position: idx + 1, status: toDb as any } }))
-    );
+    for (let idx = 0; idx < filtered.length; idx++) {
+      const id = filtered[idx];
+      tx.push(prisma.task.update({ where: { id }, data: { position: idx + 1, status: toDb as any } }));
+    }
 
     // update source
-  sourceFiltered.forEach((id: string, idx: number) =>
-      tx.push(prisma.task.update({ where: { id }, data: { position: idx + 1 } }))
-    );
+    for (let idx = 0; idx < sourceFiltered.length; idx++) {
+      const id = sourceFiltered[idx];
+      tx.push(prisma.task.update({ where: { id }, data: { position: idx + 1 } }));
+    }
 
     const results = await prisma.$transaction(tx);
     // return changed task (we can fetch fresh)

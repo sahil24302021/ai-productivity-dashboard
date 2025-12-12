@@ -7,7 +7,7 @@ const CreateTaskSchema = z.object({
   description: z.string().optional(),
   dueDate: z.string().optional(), // ISO
   reminderAt: z.string().optional(),
-  status: z.enum(["todo","in-progress","done"]).optional(),
+  status: z.enum(["todo","in_progress","done"]).optional(),
 });
 
 export async function createTask(req: Request, res: Response) {
@@ -18,7 +18,7 @@ export async function createTask(req: Request, res: Response) {
   const userId = req.user.id;
 
   const { title, description, dueDate, reminderAt, status } = parsed.data;
-  const dbStatus = status ? (status === "in-progress" ? "in_progress" : status) : "todo";
+  const dbStatus = status ? (status === "in_progress" ? "in_progress" : status) : "todo";
 
   // Set position to end of column
   const count = await prisma.task.count({ where: { userId, status: dbStatus } });

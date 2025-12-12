@@ -1,5 +1,6 @@
 import prisma from "../prisma";
 
+// Prisma task status values
 type Status = "todo" | "in_progress" | "done";
 
 export type OverviewStats = {
@@ -82,9 +83,12 @@ export async function getOverview(userId: string): Promise<OverviewStats> {
 
   // compute overdue/active using fetched window + grouped counts fallback
   // Prefer live calc from all statuses via groupBy results for accuracy
-  const statusCounts = statusGroupCounts.reduce<Record<Status, number>>(
-    (acc: Record<Status, number>, row: { status: Status; _count: { status: number } }) => {
-      const s = row.status;
+  const statusCounts: Record<Status, number> = statusGroupCounts.reduce(
+    (
+      acc: Record<Status, number>,
+      row: { status: Status; _count: { status: number } }
+    ): Record<Status, number> => {
+      const s: Status = row.status;
       acc[s] = row._count.status;
       return acc;
     },
@@ -111,8 +115,14 @@ export async function getOverview(userId: string): Promise<OverviewStats> {
   // overdue already computed precisely via Prisma count; skip incremental window-based calc
   }
 
-  const createdByDay = last7.map((d) => createdMap[d.toISOString().split("T")[0]]);
-  const completedByDay = last7.map((d) => completedMap[d.toISOString().split("T")[0]]);
+  const createdByDay: number[] = last7.map((d: Date): number => {
+    const key = d.toISOString().split("T")[0];
+    return createdMap[key];
+  });
+  const completedByDay: number[] = last7.map((d: Date): number => {
+    const key = d.toISOString().split("T")[0];
+    return completedMap[key];
+  });
 
   // streak: consecutive days ending today with >=1 completed
   let streak = 0;
@@ -121,17 +131,23 @@ export async function getOverview(userId: string): Promise<OverviewStats> {
     else break;
   }
 
-  const avgCompletionTime = durations.length
-    ? Math.round(durations.reduce((a, b) => a + b, 0) / durations.length)
+  const avgCompletionTime: number | null = durations.length > 0
+    ? Math.round(durations.reduce((a: number, b: number): number => a + b, 0) / durations.length)
     : null;
 
-  const totalCreated7Days = createdByDay.reduce((a, b) => a + b, 0);
-  const totalCompleted7Days = completedByDay.reduce((a, b) => a + b, 0);
+  const totalCreated7Days: number = createdByDay.reduce((a: number, b: number): number => a + b, 0);
+  const totalCompleted7Days: number = completedByDay.reduce((a: number, b: number): number => a + b, 0);
   const avgCreatedPerDay = Math.round((totalCreated7Days / 7) * 100) / 100;
   const avgCompletedPerDay = Math.round((totalCompleted7Days / 7) * 100) / 100;
 
-  const peakCreatedIdx = createdByDay.reduce((mIdx, val, idx, arr) => (val > arr[mIdx] ? idx : mIdx), 0);
-  const peakCompletedIdx = completedByDay.reduce((mIdx, val, idx, arr) => (val > arr[mIdx] ? idx : mIdx), 0);
+  const peakCreatedIdx: number = createdByDay.reduce(
+    (mIdx: number, val: number, idx: number, arr: number[]): number => (val > arr[mIdx] ? idx : mIdx),
+    0
+  );
+  const peakCompletedIdx: number = completedByDay.reduce(
+    (mIdx: number, val: number, idx: number, arr: number[]): number => (val > arr[mIdx] ? idx : mIdx),
+    0
+  );
   const peakCreatedDay = createdByDay[peakCreatedIdx] > 0
     ? { date: last7[peakCreatedIdx].toISOString().split("T")[0], count: createdByDay[peakCreatedIdx] }
     : null;

@@ -1,0 +1,32 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "TypeScript check server",
+			"type": "shell",
+			"command": "npm run -w server -s tsc -- --noEmit",
+			"problemMatcher": [
+				"$tsc - 5.0.4"
+			],
+			"group": "build"
+		},
+		{
+			"label": "TypeScript check server",
+			"type": "shell",
+			"command": "npm run -w server -s tsc -- --noEmit",
+			"problemMatcher": [
+				"$tsc - 5.0.4"
+			],
+			"group": "build"
+		},
+		{
+			"label": "TypeScript check server",
+			"type": "shell",
+			"command": "env -i TMPDIR=$TMPDIR PATH=$PATH HOME=$HOME SHELL=/bin/zsh /bin/zsh -c 'npm run -w server -s tsc -- --noEmit'",
+			"problemMatcher": [
+				"$tsc - 5.0.4"
+			],
+			"group": "build"
+		}
+	]
+}

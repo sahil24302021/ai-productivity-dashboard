@@ -33,12 +33,12 @@ app.use(
 const whitelist = env.CORS_WHITELIST
   ? env.CORS_WHITELIST
       .split(",")
-      .map((s) => s.trim())
-      .filter(Boolean)
+      .map((s: string): string => s.trim())
+      .filter((v: string): boolean => Boolean(v))
   : [];
 app.use(
   cors({
-    origin: (origin, cb) => {
+  origin: (origin: string | undefined, cb: (err: Error | null, allow?: boolean) => void) => {
   if (env.NODE_ENV !== "production") return cb(null, true);
       if (!origin) return cb(null, true); // allow tools like Postman
       if (whitelist.includes(origin)) return cb(null, true);

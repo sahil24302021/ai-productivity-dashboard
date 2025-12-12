@@ -6,13 +6,19 @@ export class TaskController {
   /** ---------------------------
    *  CREATE TASK
    * --------------------------- */
-  static async createTask(req: AuthRequest, res: Response) {
+  static async createTask(req: AuthRequest, res: Response): Promise<void> {
     try {
-      const { title, description, status, dueDate, reminderTime } = req.body as any;
+      const { title, description, status, dueDate, reminderTime } = req.body as {
+        title: string;
+        description?: string | null;
+        status?: string;
+        dueDate?: string | null;
+        reminderTime?: string | null;
+      };
 
-      const normalize = (s?: string) => {
+      const normalize = (s?: string): "todo" | "in_progress" | "completed" | undefined => {
         if (!s) return undefined;
-        if (s === "in-progress") return "in_progress";
+  if (s === "in_progress") return "in_progress";
         if (s === "done") return "completed";
         if (s === "completed") return "completed";
         if (s === "in_progress") return "in_progress";
@@ -43,56 +49,63 @@ export class TaskController {
         },
       });
 
-      return res.status(201).json(task);
+  res.status(201).json(task);
     } catch (error: any) {
       console.error(error);
-      return res.status(400).json({ error: error.message });
+  res.status(400).json({ error: error.message });
     }
   }
 
   /** ---------------------------
    *  GET ALL TASKS
    * --------------------------- */
-  static async getTasks(req: AuthRequest, res: Response) {
+  static async getTasks(req: AuthRequest, res: Response): Promise<void> {
     try {
       const tasks = await prisma.task.findMany({
         where: { userId: req.user!.id },
         orderBy: { createdAt: "desc" },
       });
 
-      const mapped = tasks.map((t: any) => ({
+      const mapped = tasks.map((t: { status: string } & Record<string, unknown>): Record<string, unknown> => ({
         ...t,
         status:
           t.status === "done"
             ? "completed"
-            : t.status === "in-progress"
+            : t.status === "in_progress"
             ? "in_progress"
             : t.status,
       }));
 
-      return res.json(mapped);
+      res.json(mapped);
     } catch (error: any) {
       console.error(error);
-      return res.status(400).json({ error: error.message });
+      res.status(400).json({ error: error.message });
     }
   }
 
   /** ---------------------------
    *  UPDATE TASK
    * --------------------------- */
-  static async updateTask(req: AuthRequest, res: Response) {
+  static async updateTask(req: AuthRequest, res: Response): Promise<void> {
     try {
       const { id } = req.params;
-      const { title, description, status, dueDate, reminderTime } = req.body as any;
+      const { title, description, status, dueDate, reminderTime } = req.body as {
+        title?: string;
+        description?: string | null;
+        status?: string;
+        dueDate?: string | null;
+        reminderTime?: string | null;
+      };
 
       const existing = await prisma.task.findUnique({ where: { id } });
       if (!existing || existing.userId !== req.user!.id) {
-        return res.status(404).json({ error: "Task not found or unauthorized" });
+        res.status(404).json({ error: "Task not found or unauthorized" });
+        return;
       }
 
-      const normalize = (s?: string) => {
+  const normalize = (s?: string): "todo" | "in_progress" | "completed" | undefined => {
         if (!s) return undefined;
-        if (s === "in-progress") return "in_progress";
+  if (s === "in_progress") return "in_progress";
         if (s === "done") return "completed";
         if (s === "completed") return "completed";
         if (s === "in_progress") return "in_progress";
@@ -124,31 +137,32 @@ export class TaskController {
         },
       });
 
-      return res.json(updated);
+  res.json(updated);
     } catch (error: any) {
       console.error(error);
-      return res.status(400).json({ error: error.message });
+  res.status(400).json({ error: error.message });
     }
   }
 
   /** ---------------------------
    *  DELETE TASK
    * --------------------------- */
-  static async deleteTask(req: AuthRequest, res: Response) {
+  static async deleteTask(req: AuthRequest, res: Response): Promise<void> {
     try {
       const { id } = req.params;
 
       const existing = await prisma.task.findUnique({ where: { id } });
       if (!existing || existing.userId !== req.user!.id) {
-        return res.status(404).json({ error: "Task not found or unauthorized" });
+        res.status(404).json({ error: "Task not found or unauthorized" });
+        return;
       }
 
       await prisma.task.delete({ where: { id } });
 
-      return res.json({ message: "Task deleted" });
+  res.json({ message: "Task deleted" });
     } catch (error: any) {
       console.error(error);
-      return res.status(400).json({ error: error.message });
+  res.status(400).json({ error: error.message });
     }
   }
 }

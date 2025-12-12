@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const KanbanStatusSchema = z.enum(["todo", "in-progress", "completed"]);
+export const KanbanStatusSchema = z.enum(["todo", "in_progress", "completed"]);
 
 export const ReorderBodySchema = z.object({
   status: KanbanStatusSchema,
