@@ -3,17 +3,9 @@ import React from "react";
 import { useTasks } from "@/hooks/useTasks";
 import EditTaskDrawer from "@/components/tasks/EditTaskDrawer";
 
-type Status = "todo" | "in_progress" | "completed";
+// Status shape inferred from tasks hook
 
-type Task = {
-  id: string;
-  title: string;
-  description?: string;
-  status: Status;
-  dueDate?: string | null;
-  reminder?: string | null;
-  raw?: any;
-};
+// (Task type omitted here; upcoming list uses inferred 'any' from tasks hook)
 
 function startOfDay(date: Date) {
   const d = new Date(date);

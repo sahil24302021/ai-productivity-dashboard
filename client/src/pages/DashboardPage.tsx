@@ -1,5 +1,5 @@
 // src/pages/DashboardPage.tsx
-import React, { useMemo } from "react";
+import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTasks } from "@/hooks/useTasks";
 import { Plus, Clock, CheckCircle2, Circle, ListTodo } from "lucide-react";

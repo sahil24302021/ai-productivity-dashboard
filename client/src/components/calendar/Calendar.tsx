@@ -1,5 +1,4 @@
 // client/src/components/calendar/Calendar.tsx
-
 import React from "react";
 import { motion } from "framer-motion";
 import { useTasks } from "@/hooks/useTasks";
@@ -47,7 +46,7 @@ function startOfDay(date: Date) {
 
 /* MAIN COMPONENT */
 export default function Calendar() {
-  const { tasks, isLoading } = useTasks();
+  const { tasks } = useTasks();
   const [cursor, setCursor] = React.useState<Date>(new Date());
   const today = React.useMemo(() => startOfDay(new Date()), []);
 
