@@ -1,6 +1,6 @@
 # **AI Productivity Dashboard — Technical Overview**
 
-> *“An integrated AI-driven productivity environment combining task management, behavioral analytics, and intelligent planning.”*
+An integrated AI-driven productivity environment combining task management, behavioral analytics, and intelligent planning.
 
 ---
 
@@ -75,4 +75,5 @@ The system integrates:
 
 ## **6. License**
 MIT License
+
 
