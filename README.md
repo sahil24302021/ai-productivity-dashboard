@@ -1,110 +1,78 @@
-🚀 AI Productivity Dashboard
+# **AI Productivity Dashboard — Technical Overview**
 
-A modern AI-powered productivity platform combining task management, calendar scheduling, analytics, and an AI task assistant — designed with a premium UI and full-stack TypeScript architecture.
-https://ai-productivity-dashboard-roan.vercel.app/
-⭐ What This App Does
-🔹 1. AI Task Assistant (OpenAI Powered)
+> *“An integrated AI-driven productivity environment combining task management, behavioral analytics, and intelligent planning.”*
 
-Auto-generate tasks
+---
 
-Improve written tasks
+## **1. System Demonstration**
+### **Live Demo:**  
+🔗 **https://ai-productivity-dashboard-roan.vercel.app/**
 
-Weekly planning suggestions
+---
 
-Productivity insights
+## **2. Abstract**
+The AI Productivity Dashboard is a full-stack platform designed to enhance personal task management through **artificial intelligence**, **data-driven analytics**, and **intuitive interaction systems**.
 
-🔹 2. Kanban Task Manager
+The system integrates:
 
-Drag & drop tasks
+- Natural-language task creation  
+- Predictive weekly scheduling  
+- Statistical productivity analysis  
+- High-efficiency UI for rapid workflows  
 
-Color-coded status chips
+---
 
-Smooth premium UI
+## **3. Technology Stack**
 
-🔹 3. Productivity Analytics
+### **Frontend**
+- React (TypeScript)
+- Vite Runtime
+- Zustand state model
+- React Query for data synchronization
+- TailwindCSS design tokens  
+- Recharts visualization layer  
 
-Daily & weekly completion charts
+### **Backend**
+- Express (TypeScript)
+- Prisma ORM
+- PostgreSQL relational model
+- JWT-secured authentication
+- OpenAI LLM pipeline  
 
-Streak tracking
+### **Deployment Infrastructure**
+- Vercel Edge Network (frontend)
+- Railway Cloud Compute (backend)
+- Railway PostgreSQL Cluster  
 
-AI-generated summaries
+---
 
-🔹 4. Calendar System
+## **4. System Architecture**
+```
+┌──────────────────────────┐
+│        Frontend          │
+│  React + Zustand + UI    │
+└──────────────┬───────────┘
+               │ HTTPS API
+┌──────────────▼───────────┐
+│         Backend           │
+│ Express + Prisma + AI    │
+└──────────────┬───────────┘
+               │ SQL
+┌──────────────▼───────────┐
+│     PostgreSQL DB         │
+└───────────────────────────┘
+```
 
-Day view with task drawer
+---
 
-Upcoming tasks
+## **5. Functional Modules**
+- **AI Assistant** — reasoning + response generation  
+- **Task Engine** — CRUD, reminders, Kanban states  
+- **Calendar Engine** — date mapping + event resolution  
+- **Analytics Engine** — time-series and performance metrics  
 
-Clean calendar UI & interactions
+---
 
-🔹 5. Authentication
-
-Login/Signup
-
-JWT-secured backend
-
-Protected routes
-
-<img width="1430" height="741" alt="Screenshot 2025-12-13 at 12 19 09 AM" src="https://github.com/user-attachments/assets/cad5ad0b-1e31-4e9f-8ef6-ef940f978a65" />
-
-<img width="1444" height="722" alt="Screenshot 2025-12-13 at 1<img width="1170" height="720" alt="Screenshot 2025-12-13 at 12 19 59 AM" src="https://github.com/user-attachments/assets/dfaa2a59-043c-4d03-bd0b-ef4e84d43fd3" />
-2 19 39 AM" src="https://github.com/user-attachments/assets/f9fddcc7-31eb-4c9f-97d0-e91e51d51afb" />
-
-React + Vite + TypeScript
-
-TailwindCSS
-
-Zustand (Global auth store)
-
-TanStack Query
-
-Custom premium UI components
-
-Backend
-
-Node.js + Express
-
-TypeScript
-
-Prisma ORM
-
-PostgreSQL
-
-AI
-
-OpenAI API for task automation + insights
-
-Deployment
-
-Frontend → Vercel
-
-Backend → Railway
-
-Database → Railway PostgreSQL
-
-🎯 Why This Project Is Valuable
-
-Demonstrates full-stack TypeScript
-
-Real-world AI integration
-
-Professional SaaS-level UI
-
-Shows your understanding of:
-
-API architecture
-
-Authentication
-
-Database modeling
-
-Deployment workflows
-
-Excellent for Internship / Resume / Portfolio
-
-🛠 Project Structure
-ai-productivity-dashboard/
-│
-├── client/     # React + Vite frontend
-└── server/     # Node.js backend (Prisma + Express)
+## **6. License**
+MIT License
 
