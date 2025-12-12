@@ -2,19 +2,21 @@
 import prisma from "../prisma";
 import { Prisma } from "@prisma/client";
 
+type ApiStatus = "todo" | "in-progress" | "completed";
+type DbStatus = "todo" | "in_progress" | "done";
+const apiToDb = (s: ApiStatus): DbStatus => (s === "in-progress" ? "in_progress" : s === "completed" ? "done" : "todo");
+
 /**
  * Helper: renumber tasks for a status into sequential positions starting at 1.
  * Accepts an array of Task objects (must include id) and updates position sequentially.
  */
-async function renumberTasksForStatus(userId: string, status: string, orderedTaskIds: string[]) {
-  const normalize = (s: string) => (s === "in-progress" ? "in_progress" : s === "done" ? "completed" : s);
-  const normalizedStatus = normalize(status);
-  const dbStatus = normalizedStatus === "completed" ? "done" : normalizedStatus;
+async function renumberTasksForStatus(userId: string, status: ApiStatus, orderedTaskIds: string[]): Promise<any> {
+  const dbStatus = apiToDb(status);
   // Build the bulk operations using a transaction
   const updates = orderedTaskIds.map((taskId, index) =>
     prisma.task.update({
       where: { id: taskId },
-  data: { position: index + 1, status: dbStatus as any },
+      data: { position: index + 1, status: dbStatus as any },
     })
   );
 
@@ -25,9 +27,8 @@ async function renumberTasksForStatus(userId: string, status: string, orderedTas
  * Reorder tasks within the same column/status using an ordered list of task IDs.
  * Ensures ownership and that each task belongs to the provided user and status.
  */
-export async function reorderTasks(userId: string, status: string, taskIds: string[]) {
-  const normalize = (s: string) => (s === "in-progress" ? "in_progress" : s === "done" ? "completed" : s);
-  const normalizedStatus = normalize(status);
+export async function reorderTasks(userId: string, status: ApiStatus, taskIds: string[]): Promise<any[]> {
+  const normalizedStatus = status;
   // fetch tasks to validate ownership and status
   const tasks = await prisma.task.findMany({
     where: { id: { in: taskIds } },
@@ -45,7 +46,7 @@ export async function reorderTasks(userId: string, status: string, taskIds: stri
   }
 
   // recommended to check that all tasks belong to the same status (or allow moving status via move endpoint)
-  const wrongStatus = tasks.filter((t: { id: string; userId: string; status: string }) => t.status !== normalizedStatus);
+  const wrongStatus = tasks.filter((t: { id: string; userId: string; status: string }) => t.status !== apiToDb(normalizedStatus));
   if (wrongStatus.length > 0) {
     throw new Error("All tasks must belong to the provided status/column when reordering.");
   }
@@ -66,26 +67,24 @@ export async function reorderTasks(userId: string, status: string, taskIds: stri
  * If toPosition omitted or > length+1, append to end.
  * Ensures ownership.
  */
-export async function moveTask(userId: string, taskId: string, toStatus: string, toPosition?: number) {
-  const normalize = (s: string) => (s === "in-progress" ? "in_progress" : s === "done" ? "completed" : s);
+export async function moveTask(userId: string, taskId: string, toStatus: ApiStatus, toPosition?: number): Promise<any> {
   // fetch the task
   const task = await prisma.task.findUnique({ where: { id: taskId } });
   if (!task) throw new Error("Task not found.");
   if (task.userId !== userId) throw new Error("Unauthorized: you don't own this task.");
 
   const fromStatus = task.status;
-  const toStatusNormalized = normalize(toStatus);
-  const toDb = toStatusNormalized === "completed" ? "done" : toStatusNormalized;
+  const toDb = apiToDb(toStatus);
 
   // If moving within same status, we can reuse reorder logic but here we handle general case.
-  if (fromStatus === toStatusNormalized && toPosition === undefined) {
+  if (fromStatus === toDb && toPosition === undefined) {
     // nothing to do
     return task;
   }
 
   // Get tasks currently in target status ordered by position
   const destTasks = await prisma.task.findMany({
-    where: { status: toDb as any, userId },
+  where: { status: toDb as any, userId },
     orderBy: { position: "asc" },
     select: { id: true },
   });
@@ -108,7 +107,7 @@ export async function moveTask(userId: string, taskId: string, toStatus: string,
   // For source column: if moving across columns, remove from source and renumber source too
   if (fromStatus !== toDb) {
   const sourceTasks = await prisma.task.findMany({
-      where: { status: fromStatus, userId },
+  where: { status: fromStatus as any, userId },
       orderBy: { position: "asc" },
       select: { id: true },
     });

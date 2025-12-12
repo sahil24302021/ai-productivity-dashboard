@@ -82,11 +82,14 @@ export async function getOverview(userId: string): Promise<OverviewStats> {
 
   // compute overdue/active using fetched window + grouped counts fallback
   // Prefer live calc from all statuses via groupBy results for accuracy
-  const statusCounts = statusGroupCounts.reduce<Record<Status, number>>((acc, row: any) => {
-    const s = row.status as Status;
-    acc[s] = (row._count?.status ?? row._count) as number;
-    return acc;
-  }, { todo: 0, in_progress: 0, done: 0 });
+  const statusCounts = statusGroupCounts.reduce<Record<Status, number>>(
+    (acc: Record<Status, number>, row: { status: Status; _count: { status: number } }) => {
+      const s = row.status;
+      acc[s] = row._count.status;
+      return acc;
+    },
+    { todo: 0, in_progress: 0, done: 0 }
+  );
   active = (statusCounts.todo ?? 0) + (statusCounts.in_progress ?? 0);
 
   // We still need overdue specifically (dueDate < now and not done)

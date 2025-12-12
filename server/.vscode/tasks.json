@@ -10,6 +10,16 @@
 				"$tsc"
 			],
 			"group": "build"
+		},
+		{
+			"label": "server build",
+			"type": "shell",
+			"command": "npm run build",
+			"args": [],
+			"problemMatcher": [
+				"$tsc"
+			],
+			"group": "build"
 		}
 	]
 }

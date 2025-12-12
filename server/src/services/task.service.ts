@@ -10,7 +10,7 @@ export class TaskService {
         title: data.title,
         description: data.description ?? null,
         dueDate: data.dueDate ?? null,
-        reminderTime: data.reminderTime ?? null,
+  reminderAt: data.reminderTime ?? null,
         status: data.status, // already normalized in controller
         userId,
       },
@@ -43,7 +43,7 @@ export class TaskService {
         title: data.title,
         description: data.description ?? null,
         dueDate: data.dueDate ?? null,
-        reminderTime: data.reminderTime ?? null,
+  reminderAt: data.reminderTime ?? null,
         status: data.status, // controller already maps completed → done
       },
     });

@@ -1,6 +1,6 @@
 import prisma from "../prisma";
 
-export async function getTaskCounts(userId: string) {
+export async function getTaskCounts(userId: string): Promise<{ total: number; byStatus: Record<string, number> }> {
   const groups = await prisma.task.groupBy({
     by: ["status"],
     _count: { status: true },
@@ -9,14 +9,14 @@ export async function getTaskCounts(userId: string) {
 
   const byStatus: Record<string, number> = { todo: 0, in_progress: 0, done: 0 };
   let total = 0;
-  groups.forEach((g: any) => {
+  groups.forEach((g: { status: string; _count: { status: number } }) => {
     byStatus[g.status] = g._count.status;
     total += g._count.status;
   });
   return { total, byStatus };
 }
 
-export async function getStatusBreakdown(userId: string) {
+export async function getStatusBreakdown(userId: string): Promise<{ todo: number; in_progress: number; done: number }> {
   const { total, byStatus } = await getTaskCounts(userId);
   if (total === 0) return { todo: 0, in_progress: 0, done: 0 };
   return {
@@ -26,14 +26,14 @@ export async function getStatusBreakdown(userId: string) {
   };
 }
 
-export async function getProductivityScore(userId: string) {
+export async function getProductivityScore(userId: string): Promise<{ score: number }> {
   const completedTasks = await prisma.task.count({ where: { userId, status: "done" as any } });
   const pendingTasks = await prisma.task.count({ where: { userId, NOT: { status: "done" as any } } });
   const score = completedTasks * 2 - pendingTasks;
   return { score };
 }
 
-export async function getDailyActivity(userId: string, days: number) {
+export async function getDailyActivity(userId: string, days: number): Promise<Array<{ date: string; created: number; updated: number }>> {
   const end = new Date();
   const start = new Date();
   start.setDate(end.getDate() - (days - 1));

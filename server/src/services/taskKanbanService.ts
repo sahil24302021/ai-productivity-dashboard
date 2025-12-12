@@ -1,8 +1,9 @@
 import { prisma } from "../prisma";
 
 
-type KanbanStatusApi = "todo" | "in-progress" | "done";
-const apiToDbStatus = (s: KanbanStatusApi) => (s === "in-progress" ? "in_progress" : s);
+export type KanbanStatusApi = "todo" | "in-progress" | "completed";
+const apiToDbStatus = (s: KanbanStatusApi): "todo" | "in_progress" | "done" =>
+  s === "in-progress" ? "in_progress" : s === "completed" ? "done" : "todo";
 
 export async function reorderTasks({
   userId,
